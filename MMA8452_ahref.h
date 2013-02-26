@@ -1,17 +1,21 @@
 /************************************************************************************
  * 	
- * 	Name    : MMA8453_n0m1 Library                         
- * 	Author  : Noah Shibley, Michael Grant, NoMi Design Ltd. http://n0m1.com                       
+ * 	Name    : MMA8452_ahref Library                         
+ * 	Author  : Noah Shibley, Michael Grant, NoMi Design Ltd. http://n0m1.com, Richard Fox                       
  * 	Date    : Feb 10th 2012                                    
  * 	Version : 0.1                                              
- * 	Notes   : Arduino Library for use with the Freescale MMA8453Q via i2c. 
+ * 	Notes   : Arduino Library for use with the Freescale MMA8452Q via i2c. 
               Some of the lib source from Kerry D. Wong
-			  http://www.kerrywong.com/2012/01/09/interfacing-mma8453q-with-arduino/
+			  http://www.kerrywong.com/2012/01/09/interfacing-MMA8452Q-with-arduino/
+			  Edited xyz method uses process from Nathan Seidle's MMA8452Q code
+              https://github.com/sparkfun/MMA8452_Accelerometer
+
+              Uses MMA8453_n0m1 as a base: https://github.com/n0m1/MMA8453_n0m1
  * 
  * 
- * 	This file is part of MMA8453_n0m1.
+ * 	This file is part of MMA8452_ahref.
  * 
- * 		    MMA8453_n0m1 is free software: you can redistribute it and/or modify
+ * 		    MMA8452_ahref is free software: you can redistribute it and/or modify
  * 		    it under the terms of the GNU General Public License as published by
  * 		    the Free Software Foundation, either version 3 of the License, or
  * 		    (at your option) any later version.
@@ -22,13 +26,13 @@
  * 		    GNU General Public License for more details.
  * 
  * 		    You should have received a copy of the GNU General Public License
- * 		    along with MMA8453_n0m1.  If not, see <http://www.gnu.org/licenses/>.
+ * 		    along with MMA8452_ahref.  If not, see <http://www.gnu.org/licenses/>.
  * 
  ***********************************************************************************/
 
 
-#ifndef MMA8453_N0M1_H
-#define MMA8453_N0M1_H
+#ifndef MMA8452_ahref_H
+#define MMA8452_ahref_H
 
 //uncomment PINCHANGE_INT to use INT pins other then arduino pins 2 & 3
 //include the library from: http://code.google.com/p/arduino-pinchangeint/
@@ -100,12 +104,12 @@ const byte FULL_SCALE_RANGE_8g = 0x2;
 extern "C" void accelISR(void) __attribute__ ((signal)); 
 
 
-class MMA8453_n0m1 {
+class MMA8452_ahref {
 
 public:
   friend void accelISR(void); //make friend so bttnPressISR can access private var keyhit	
  
-  MMA8453_n0m1();
+  MMA8452_ahref();
 
 /***********************************************************
  * 
@@ -274,7 +278,7 @@ private:
 	boolean shakeAxisZ_;
 
 	volatile boolean ISRFlag;
-	static MMA8453_n0m1* pMMA8453_n0m1; //ptr to MMA8453_n0m1 class for the ISR
+	static MMA8452_ahref* pMMA8452_ahref; //ptr to MMA8452_ahref class for the ISR
  
 };
 

@@ -1,17 +1,21 @@
 /************************************************************************************
  * 	
- * 	Name    : MMA8453_n0m1 Library                         
- * 	Author  : Noah Shibley, Michael Grant, NoMi Design Ltd. http://n0m1.com                       
+ * 	Name    : MMA8452_ahref Library                         
+ * 	Author  : Noah Shibley, Michael Grant, NoMi Design Ltd. http://n0m1.com, Richard Fox                       
  * 	Date    : Feb 10th 2012                                    
  * 	Version : 0.1                                              
- * 	Notes   : Arduino Library for use with the Freescale MMA8453Q via i2c. 
+ * 	Notes   : Arduino Library for use with the Freescale MMA8452Q via i2c. 
               Some of the lib source from Kerry D. Wong
-			  http://www.kerrywong.com/2012/01/09/interfacing-mma8453q-with-arduino/
+              http://www.kerrywong.com/2012/01/09/interfacing-MMA8452Q-with-arduino/
+              Edited xyz method uses process from Nathan Seidle's MMA8452Q code
+              https://github.com/sparkfun/MMA8452_Accelerometer
+
+              Uses MMA8453_n0m1 as a base: https://github.com/n0m1/MMA8453_n0m1
  * 
  * 
- * 	This file is part of MMA8453_n0m1.
+ * 	This file is part of MMA8452_ahref.
  * 
- * 		    MMA8453_n0m1 is free software: you can redistribute it and/or modify
+ * 		    MMA8452_ahref is free software: you can redistribute it and/or modify
  * 		    it under the terms of the GNU General Public License as published by
  * 		    the Free Software Foundation, either version 3 of the License, or
  * 		    (at your option) any later version.
@@ -22,17 +26,17 @@
  * 		    GNU General Public License for more details.
  * 
  * 		    You should have received a copy of the GNU General Public License
- * 		    along with MMA8453_n0m1.  If not, see <http://www.gnu.org/licenses/>.
+ * 		    along with MMA8452_ahref.  If not, see <http://www.gnu.org/licenses/>.
  * 
  ***********************************************************************************/
 
-#include "MMA8453_n0m1.h"
+#include "MMA8452_ahref.h"
 
-MMA8453_n0m1* MMA8453_n0m1::pMMA8453_n0m1 = 0; 
+MMA8452_ahref* MMA8452_ahref::pMMA8452_ahref = 0; 
 
-MMA8453_n0m1::MMA8453_n0m1()
+MMA8452_ahref::MMA8452_ahref()
 {
-	pMMA8453_n0m1 = this;
+	pMMA8452_ahref = this;
 	dataMode_ = false;
 	shakeMode_ = false; 
 	ISRFlag = false;
@@ -52,7 +56,7 @@ MMA8453_n0m1::MMA8453_n0m1()
  * 
  *   
  ***********************************************************/
-void MMA8453_n0m1::setI2CAddr(int address)
+void MMA8452_ahref::setI2CAddr(int address)
 {
 	I2CAddr = address; I2CAddr; 
 }
@@ -64,7 +68,7 @@ void MMA8453_n0m1::setI2CAddr(int address)
  * 
  *   
  ***********************************************************/
-void MMA8453_n0m1::update()
+void MMA8452_ahref::update()
 {
 	if(dataMode_)
 	{
@@ -85,7 +89,7 @@ void MMA8453_n0m1::update()
  * 
  *   
  ***********************************************************/
-void MMA8453_n0m1::clearInterrupt()
+void MMA8452_ahref::clearInterrupt()
 {
 	
   if(ISRFlag)
@@ -138,39 +142,44 @@ void MMA8453_n0m1::clearInterrupt()
 * xyz
 * 
 * Get accelerometer readings (x, y, z)
-* by default, standard 10 bits mode is used.
-* 
-* This function also convers 2's complement number to
-* signed integer result.
+* by default, standard 12 bits mode is used.
 * 
 * If accelerometer is initialized to use low res mode,
 * isHighRes must be passed in as false.
 *
 *************************************************************/
-void MMA8453_n0m1::xyz(int& x, int& y, int& z)
+void MMA8452Q_ahref::xyz(int& x, int& y, int& z)
 {
-
   byte buf[6];
 
   if (highRes_) 
   {
     I2c.read(I2CAddr, REG_OUT_X_MSB, 6, buf);
-    x = buf[0] << 2 | buf[1] >> 6 & 0x3;
-    y = buf[2] << 2 | buf[3] >> 6 & 0x3;
-    z = buf[4] << 2 | buf[5] >> 6 & 0x3;
+    x = ((buf[0] << 8) | buf[1]) >> 4;
+    y = ((buf[2] << 8) | buf[3]) >> 4;
+    z = ((buf[4] << 8) | buf[5]) >> 4;
+    
+    if(buf[0] > 0x7F) {
+    	x = ~x + 1;
+    	x *= -1;
+    }
+    if(buf[2] > 0x7F) {
+    	y = ~x + 1;
+    	y *= -1;
+    }
+    if(buf[4] > 0x7F) {
+    	z = ~x + 1;
+    	z *= -1;
+    }
   }
   else 
   {
+  	//I dont know if this is still correct I just guessed
     I2c.read(I2CAddr, REG_OUT_X_MSB, 3, buf);
-    x = buf[0] << 2;
-    y = buf[1] << 2;
-    z = buf[2] << 2;
+    x = buf[0] << 8;
+    y = buf[1] << 8;
+    z = buf[2] << 8;
   }
-
-  if (x > 511) x = x - 1024;
-  if (y > 511) y = y - 1024 ;
-  if (z > 511) z = z - 1024;
-  
 }
 
 /***********************************************************
@@ -180,7 +189,7 @@ void MMA8453_n0m1::xyz(int& x, int& y, int& z)
  * 
  *   
  ***********************************************************/
-void MMA8453_n0m1::dataMode(boolean highRes, int gScaleRange)
+void MMA8452_ahref::dataMode(boolean highRes, int gScaleRange)
 {
 	highRes_ = highRes;
 	gScaleRange_ = gScaleRange;
@@ -223,7 +232,7 @@ void MMA8453_n0m1::dataMode(boolean highRes, int gScaleRange)
  * 
  *   
  ***********************************************************/
-void MMA8453_n0m1::shakeMode(int threshold, boolean enableX, boolean enableY, boolean enableZ, boolean enableINT2,int arduinoINTPin)
+void MMA8452_ahref::shakeMode(int threshold, boolean enableX, boolean enableY, boolean enableZ, boolean enableINT2,int arduinoINTPin)
 {
 	 if(arduinoINTPin == 2 || arduinoINTPin == 3)
 	 {
@@ -303,7 +312,7 @@ void MMA8453_n0m1::shakeMode(int threshold, boolean enableX, boolean enableY, bo
  * 
  *   
  ***********************************************************/
-void MMA8453_n0m1::motionMode(int threshold, boolean enableX, boolean enableY, boolean enableZ, boolean enableINT2,int arduinoINTPin)
+void MMA8452_ahref::motionMode(int threshold, boolean enableX, boolean enableY, boolean enableZ, boolean enableINT2,int arduinoINTPin)
 {
 	 if(arduinoINTPin == 2 || arduinoINTPin == 3)
 	 {
@@ -382,7 +391,7 @@ void MMA8453_n0m1::motionMode(int threshold, boolean enableX, boolean enableY, b
  * 
  *   
  ***********************************************************/
-void MMA8453_n0m1::regRead(byte reg, byte *buf, byte count)
+void MMA8452_ahref::regRead(byte reg, byte *buf, byte count)
 {
    I2c.read(I2CAddr, reg, count, buf);
 }
@@ -394,7 +403,7 @@ void MMA8453_n0m1::regRead(byte reg, byte *buf, byte count)
  * 
  *   
  ***********************************************************/
-void MMA8453_n0m1::regWrite(byte reg, byte val)
+void MMA8452_ahref::regWrite(byte reg, byte val)
 {
   I2c.write(I2CAddr, reg, val);
 }
@@ -407,5 +416,5 @@ void MMA8453_n0m1::regWrite(byte reg, byte val)
  *   
  ***********************************************************/
 void accelISR(void){
-	MMA8453_n0m1::pMMA8453_n0m1->ISRFlag = true;
+	MMA8452_ahref::pMMA8452_ahref->ISRFlag = true;
 }

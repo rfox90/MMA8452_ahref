@@ -1,13 +1,17 @@
-Name    : MMA8453_n0m1 Library                         
-Author  : Noah Shibley, Michael Grant, NoMi Design Ltd. http://n0m1.com                       
+Name    : MMA8452_ahref Library                         
+Author  : Noah Shibley, Michael Grant, NoMi Design Ltd. http://n0m1.com, Richard Fox                        
 Date    : Feb 10th 2012                                    
 Version : 0.1                                              
-Notes   : Arduino Library for use with the Freescale MMA8453Q via i2c. 
+Notes   : Arduino Library for use with the Freescale MMA8452Q via i2c. 
           Some of the lib source from Kerry D. Wong
 	  http://www.kerrywong.com/2012/01/09/interfacing-mma8453q-with-arduino/
-	  This library has been tested with the Freescale MMA8453Q Accelerometer
+	  This library has been tested with the Freescale MMA8452Q Accelerometer
 	  chip, however the Freescale MMA8451, and MMA8452 probably also work.
-	  Refer to the examples for how to use this library.  
+	  Refer to the examples for how to use this library. 
+	  Edited xyz method uses process from Nathan Seidle's MMA8452Q code
+      https://github.com/sparkfun/MMA8452_Accelerometer 
+
+      Uses MMA8453_n0m1 as a base: https://github.com/n0m1/MMA8453_n0m1
 			
 Dependencies:	
 	 I2C library:
@@ -23,7 +27,7 @@ Parameters: (int) device address: a common value is 0x1D
 ------------------------------------------------------	
 Function: dataMode
 Description: set the device to return raw data values
-Parameters: (boolean) enable highRes 10bit,
+Parameters: (boolean) enable highRes 12bit,
 	    (int) set g force range: [2g,4g,8g]
 ------------------------------------------------------
 Function: x
