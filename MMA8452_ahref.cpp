@@ -148,27 +148,30 @@ void MMA8452_ahref::clearInterrupt()
 * isHighRes must be passed in as false.
 *
 *************************************************************/
-void MMA8452Q_ahref::xyz(int& x, int& y, int& z)
+void MMA8452_ahref::xyz(int& x, int& y, int& z)
 {
   byte buf[6];
 
   if (highRes_) 
   {
     I2c.read(I2CAddr, REG_OUT_X_MSB, 6, buf);
-    x = ((buf[0] << 8) | buf[1]) >> 4;
-    y = ((buf[2] << 8) | buf[3]) >> 4;
-    z = ((buf[4] << 8) | buf[5]) >> 4;
+    x = ((buf[0] << 8) | buf[1]);
+    y = ((buf[2] << 8) | buf[3]);
+    z = ((buf[4] << 8) | buf[5]);
+    x >>= 4;
+    y >>= 4;
+    z >>= 4;
     
     if(buf[0] > 0x7F) {
     	x = ~x + 1;
     	x *= -1;
     }
     if(buf[2] > 0x7F) {
-    	y = ~x + 1;
+    	y = ~y + 1;
     	y *= -1;
     }
     if(buf[4] > 0x7F) {
-    	z = ~x + 1;
+    	z = ~z + 1;
     	z *= -1;
     }
   }
@@ -182,6 +185,33 @@ void MMA8452Q_ahref::xyz(int& x, int& y, int& z)
   }
 }
 
+/*************************************************************
+* x_f
+* Get the x axis value in G's
+*
+*************************************************************/
+float MMA8452_ahref::x_f(){
+	return  (float) x_ / (4096/(2*gScaleInt_));
+}
+
+/*************************************************************
+* y_f
+* Get the y axis value in G's
+*
+*************************************************************/
+float MMA8452_ahref::y_f(){
+	return  (float) y_ / (4096/(2*gScaleInt_));
+}
+
+/*************************************************************
+* z_f
+* Get the z axis value in G's
+*
+*************************************************************/
+float MMA8452_ahref::z_f(){
+	return  (float) x_ / (4096/(2*gScaleInt_));
+}
+
 /***********************************************************
  * 
  * dataMode
@@ -193,6 +223,7 @@ void MMA8452_ahref::dataMode(boolean highRes, int gScaleRange)
 {
 	highRes_ = highRes;
 	gScaleRange_ = gScaleRange;
+	gScaleInt_ = gScaleRange;
 	dataMode_ = true;
 	byte statusCheck;
 	byte activeMask = 0x01;

@@ -133,10 +133,11 @@ void dataMode(boolean highRes, int gScaleRange);
  * 
  * x
  *
- * returns the x axis value
+ * returns the x axis value pass
  *   
  ***********************************************************/
 int x(){ return x_; }
+float x_f();
 
 /***********************************************************
  * 
@@ -146,6 +147,7 @@ int x(){ return x_; }
  *   
  ***********************************************************/
 int y() { return y_; }
+float y_f();
 
 /***********************************************************
  * 
@@ -155,6 +157,7 @@ int y() { return y_; }
  *   
  ***********************************************************/
 int z(){ return z_; }
+float z_f();
 
 /***********************************************************
  * 
@@ -267,6 +270,7 @@ private:
 	
 	boolean highRes_;
 	int gScaleRange_;
+	int gScaleInt_;
 	boolean dataMode_;
 	boolean shakeMode_;
 	boolean motionMode_;
