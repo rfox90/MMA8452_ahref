@@ -39,6 +39,16 @@ Return: (int) returns the y axis value
 Function: z
 Return: (int) returns the z axis value
 ------------------------------------------------------
+Function: x_f
+Return: (float) returns the x axis value in Gs
+------------------------------------------------------
+Function: y_f
+Return: (float) returns the y axis value in Gs
+------------------------------------------------------ 
+Function: z_f
+Return: (fload) returns the z axis value in Gs
+------------------------------------------------------
+
 Function: shakeMode
 Description: set to transient detection mode
 Parameters: (int) threshold [0-127] formula: 6g/ 0.063g = 95.2 counts, round to 96,
